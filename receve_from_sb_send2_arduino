@@ -1,0 +1,65 @@
+/*
+ * Button Example
+ *
+ *   Spacebrew library button example that send and receives boolean messages.  
+ * 
+ */
+import spacebrew.*;
+import processing.serial.*;
+
+String server="sandbox.spacebrew.cc";
+String name="prince tomato";
+String description ="Client that sends and receives boolean messages. Background turns yellow when message received.";
+
+//boolean feelingsOn = false;
+
+int feelingsOn = 0;
+
+Spacebrew sb;
+Serial myPort; //seral port connetion 
+
+color color_on = color(255, 255, 50);
+color color_off = color(255, 255, 255);
+int currentColor = color_off;
+
+void setup() {
+  frameRate(240);
+  size(500, 400);
+
+  // instantiate the spacebrewConnection variable
+  sb = new Spacebrew( this );
+
+  // declare your subscribers
+  sb.addSubscribe( "feeling_you", "boolean" );
+
+  // connect to spacebre
+  sb.connect(server, name, description );
+
+//  int i =0 ; 
+//  for (String s : Serial.list()) {
+//    println(Integer.toString(i) + " : " +s);
+//    i++;
+//  }
+
+  myPort = new Serial(this, Serial.list()[(Serial.list().length-1)], 9600); 
+  myPort.bufferUntil('\n');
+}
+void draw() {
+  // set background color
+  background( currentColor );
+}
+
+void onBooleanMessage( String name, boolean value ) {
+  println("got bool message " + name + " : " + value);   
+  // update background color
+  if (value == true) {
+    currentColor = color_on;
+    feelingsOn = 1;
+    
+  } 
+  else if (value == false) {   
+    currentColor = color_off;
+        feelingsOn = 0;
+  }
+  myPort.write(feelingsOn);
+}
